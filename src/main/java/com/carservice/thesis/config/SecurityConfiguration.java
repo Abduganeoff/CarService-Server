@@ -57,6 +57,13 @@ public class SecurityConfiguration {
                                 .requestMatchers(GET,"/api/v1/demo-controller/employee").hasAnyAuthority(EMPLOYEE_READ.name(), ADMIN_READ.name())
                                 .requestMatchers(GET,"/api/v1/demo-controller/admin").hasAnyAuthority(ADMIN_READ.name())
 
+                                .requestMatchers("/api/v1/users").hasAnyRole(ADMIN.name())
+                                .requestMatchers("/api/v1/users/**").hasAnyRole(ADMIN.name())
+                                .requestMatchers(GET, "/api/v1/users/**").hasAnyAuthority(ADMIN_READ.name())
+                                .requestMatchers(PUT, "/api/v1/users/**").hasAnyAuthority(ADMIN_UPDATE.name())
+                                .requestMatchers(POST, "/api/v1/users").hasAnyAuthority(ADMIN_CREATE.name())
+                                .requestMatchers(DELETE, "/api/v1/users/**").hasAnyAuthority(ADMIN_DELETE.name())
+
 
                                 .requestMatchers(GET, "/api/v1/management/**").hasAnyAuthority(ADMIN_READ.name(), EMPLOYEE_READ.name())
                                 .requestMatchers(POST, "/api/v1/management/**").hasAnyAuthority(ADMIN_CREATE.name(), EMPLOYEE_CREATE.name())

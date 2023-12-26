@@ -1,5 +1,6 @@
 package com.carservice.thesis.entity;
 
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,6 +13,7 @@ import static com.carservice.thesis.entity.Permission.*;
 
 @Getter
 @RequiredArgsConstructor
+@Table(name = "role") // Use the actual table name
 public enum Role {
 
     USER(Set.of(
@@ -39,9 +41,9 @@ public enum Role {
                     EMPLOYEE_DELETE,
                     EMPLOYEE_CREATE
             )
-    )
+    );
 
-    ;
+
 
     private final Set<Permission> permissions;
 

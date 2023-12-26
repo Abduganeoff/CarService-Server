@@ -1,24 +1,22 @@
 package com.carservice.thesis.dto;
 
-
-import com.carservice.thesis.entity.Role;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 
-@Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
-@Setter
+@AllArgsConstructor
 @Getter
-public class RegisterRequest {
-
+@Setter
+public class UserResponse {
+    private Integer id;
     private String firstname;
     private String lastname;
     private String email;
-    private String password;
-    private Role role;
+    private String role;
     private String phoneNumber;
     private Date birthDate;
     private double salary;
