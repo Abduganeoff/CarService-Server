@@ -33,9 +33,9 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(service.createUser(request));
     }
 
-    @GetMapping("/employees")
-    public ResponseEntity<List<UserResponse>> getAllEmployees() {
-        List<UserResponse> employees = service.getAllEmployees();
+    @GetMapping("/managers")
+    public ResponseEntity<List<UserResponse>> getAllUnAssignedManagers() {
+        List<UserResponse> employees = service.getAllUnAssignedManagers();
         return ResponseEntity.ok(employees);
     }
 

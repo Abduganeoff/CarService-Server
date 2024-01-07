@@ -21,4 +21,5 @@ public class UserResponse {
     private Date birthDate;
     private double salary;
     private int totalOrders;
+    private Integer stationId;
 }

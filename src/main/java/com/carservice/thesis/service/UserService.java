@@ -3,7 +3,9 @@ package com.carservice.thesis.service;
 import com.carservice.thesis.dto.ChangePasswordRequest;
 import com.carservice.thesis.dto.RegisterRequest;
 import com.carservice.thesis.dto.UserResponse;
+import com.carservice.thesis.entity.Station;
 import com.carservice.thesis.entity.User;
+import com.carservice.thesis.repository.StationRepository;
 import com.carservice.thesis.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,7 +16,7 @@ import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.carservice.thesis.entity.Role.EMPLOYEE;
+import static com.carservice.thesis.entity.Role.MANAGER;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +24,8 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder;
     private final UserRepository repository;
+    private final StationRepository stationRepository;
+
     public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
 
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
@@ -61,12 +65,21 @@ public class UserService {
                 .totalOrders(request.getTotalOrders())
                 .build();
 
+
         repository.save(user);
         return "Employee created successfully";
     }
 
     public void deleteUser(Integer userId) {
-        repository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        User user = repository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        if (user.getStation() != null) {
+            Station station = user.getStation();
+            station.setUser(null);
+            stationRepository.save(station);
+        }
+
         repository.deleteById(userId);
     }
 
@@ -82,6 +95,7 @@ public class UserService {
         user.setSalary(updateRequest.getSalary());
         user.setTotalOrders(updateRequest.getTotalOrders());
 
+
         // Save the updated user
         repository.save(user);
 
@@ -90,8 +104,9 @@ public class UserService {
     }
 
 
-    public List<UserResponse> getAllEmployees() {
-        return repository.findByRole(EMPLOYEE).stream()
+    public List<UserResponse> getAllUnAssignedManagers() {
+        return repository.findByRole(MANAGER).stream()
+                .filter(user -> user.getStation() == null)
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
@@ -107,6 +122,7 @@ public class UserService {
         dto.setBirthDate(user.getBirthDate());
         dto.setSalary(user.getSalary());
         dto.setTotalOrders(user.getTotalOrders());
+        dto.setStationId(user.getStation() != null ? user.getStation().getId() : null); // Set station ID
         return dto;
     }
 
