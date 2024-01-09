@@ -2,7 +2,9 @@ package com.carservice.thesis.controller;
 
 import com.carservice.thesis.dto.ChangePasswordRequest;
 import com.carservice.thesis.dto.RegisterRequest;
+import com.carservice.thesis.dto.UpdateUserRequest;
 import com.carservice.thesis.dto.UserResponse;
+import com.carservice.thesis.entity.User;
 import com.carservice.thesis.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -46,10 +48,21 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Integer userId, @RequestBody RegisterRequest request) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Integer userId, @RequestBody UpdateUserRequest request) {
         UserResponse updatedUser = service.updateUser(userId, request);
         return ResponseEntity.ok(updatedUser);
     }
 
+
+    @GetMapping("/profile")
+    public ResponseEntity<UserResponse> getCurrentUserProfile(Principal principal) {
+        return ResponseEntity.ok(service.findUserByEmail(principal.getName()));
+    }
+
+    @GetMapping("/managers/all")
+    public ResponseEntity<List<UserResponse>> getAllManagers() {
+        List<UserResponse> managers = service.getAllManagers();
+        return ResponseEntity.ok(managers);
+    }
 
 }

@@ -2,6 +2,7 @@ package com.carservice.thesis.service;
 
 import com.carservice.thesis.dto.ChangePasswordRequest;
 import com.carservice.thesis.dto.RegisterRequest;
+import com.carservice.thesis.dto.UpdateUserRequest;
 import com.carservice.thesis.dto.UserResponse;
 import com.carservice.thesis.entity.Station;
 import com.carservice.thesis.entity.User;
@@ -83,13 +84,12 @@ public class UserService {
         repository.deleteById(userId);
     }
 
-    public UserResponse updateUser(Integer userId, RegisterRequest updateRequest) {
+    public UserResponse updateUser(Integer userId, UpdateUserRequest updateRequest) {
         User user = repository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
         // Update fields
         user.setFirstname(updateRequest.getFirstname());
         user.setLastname(updateRequest.getLastname());
-        user.setRole(updateRequest.getRole());
         user.setPhoneNumber(updateRequest.getPhoneNumber());
         user.setBirthDate(updateRequest.getBirthDate());
         user.setSalary(updateRequest.getSalary());
@@ -111,6 +111,12 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public List<UserResponse> getAllManagers() {
+        return repository.findByRole(MANAGER).stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
     private UserResponse convertToDto(User user) {
         UserResponse dto = new UserResponse();
         dto.setId(user.getId());
@@ -124,6 +130,11 @@ public class UserService {
         dto.setTotalOrders(user.getTotalOrders());
         dto.setStationId(user.getStation() != null ? user.getStation().getId() : null); // Set station ID
         return dto;
+    }
+
+    public UserResponse findUserByEmail(String email) {
+        return convertToDto(repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found")));
     }
 
 
