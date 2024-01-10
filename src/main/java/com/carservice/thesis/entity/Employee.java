@@ -27,7 +27,7 @@ public class Employee {
     private String phoneNumber;
     private double salary;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "station_id")
     @JsonBackReference
     private Station station;

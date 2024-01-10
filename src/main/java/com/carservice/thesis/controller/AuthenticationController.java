@@ -41,13 +41,4 @@ public class AuthenticationController {
     ) throws IOException {
         service.refreshToken(request, response);
     }
-//
-//    @PostMapping("/logout")
-//    public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response) {
-//        logoutService.logout(request, response, null);
-//        return ResponseEntity.ok("Logout successfully!");
-//    }
-
-
-
 }

@@ -15,7 +15,7 @@ public class ThesisApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ThesisApplication.class, args);
 	}
-
+//
 //	@Bean
 //	public CommandLineRunner commandLineRunner(
 //			AuthenticationService service
@@ -35,7 +35,7 @@ public class ThesisApplication {
 //					.lastname("Admin")
 //					.email("manager@mail.com")
 //					.password("password")
-//					.role(EMPLOYEE)
+//					.role(MANAGER)
 //					.build();
 //			System.out.println("Manager token: " + service.register(manager).getAccessToken());
 //
