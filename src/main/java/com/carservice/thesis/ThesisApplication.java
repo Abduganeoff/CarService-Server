@@ -1,13 +1,7 @@
 package com.carservice.thesis;
 
-import com.carservice.thesis.dto.RegisterRequest;
-import com.carservice.thesis.service.AuthenticationService;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-
-import static com.carservice.thesis.entity.Role.*;
 
 @SpringBootApplication
 public class ThesisApplication {

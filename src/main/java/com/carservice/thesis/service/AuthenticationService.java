@@ -1,11 +1,12 @@
 package com.carservice.thesis.service;
 
-import com.carservice.thesis.dto.AuthenticationRequest;
-import com.carservice.thesis.dto.AuthenticationResponse;
-import com.carservice.thesis.dto.RegisterRequest;
+import com.carservice.thesis.dto.AuthenticationRequestDto;
+import com.carservice.thesis.dto.AuthenticationResponseDto;
+import com.carservice.thesis.dto.RegisterRequestDto;
 import com.carservice.thesis.entity.Token;
 import com.carservice.thesis.entity.TokenType;
 import com.carservice.thesis.entity.User;
+import com.carservice.thesis.exception.NotFoundOrAlreadyExistException;
 import com.carservice.thesis.repository.TokenRepository;
 import com.carservice.thesis.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +19,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
@@ -30,10 +32,11 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationResponse register(RegisterRequest request) {
+    @Transactional
+    public AuthenticationResponseDto register(RegisterRequestDto request) {
         var dbUser = repository.findByEmail(request.getEmail());
         if(dbUser.isPresent()) {
-            throw new RuntimeException("User already exists in the database!");
+            throw new NotFoundOrAlreadyExistException("User already exists in the database!");
         }
         var user = User.builder()
                 .firstname(request.getFirstname())
@@ -47,14 +50,15 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         saveUserToken(savedUser, jwtToken);
-        return AuthenticationResponse.builder()
+        return AuthenticationResponseDto.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
     }
 
 
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    @Transactional
+    public AuthenticationResponseDto authenticate(AuthenticationRequestDto request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -62,16 +66,17 @@ public class AuthenticationService {
                 )
         );
         var user = repository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new UsernameNotFoundException("Email not found " + request.getEmail()));
+                .orElseThrow(() -> new NotFoundOrAlreadyExistException("Email not found " + request.getEmail()));
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
         saveUserToken(user, jwtToken);
-        return AuthenticationResponse.builder()
+        return AuthenticationResponseDto.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
                 .build();
     }
+
 
     private void saveUserToken(User user, String jwtToken) {
         var token = Token.builder()
@@ -84,6 +89,7 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
+
     private void revokeAllUserTokens(User user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
         if (validUserTokens.isEmpty())
@@ -95,6 +101,7 @@ public class AuthenticationService {
         tokenRepository.saveAll(validUserTokens);
     }
 
+    @Transactional
     public void refreshToken(
             HttpServletRequest request,
             HttpServletResponse response
@@ -114,7 +121,7 @@ public class AuthenticationService {
                 var accessToken = jwtService.generateToken(user);
                 revokeAllUserTokens(user);
                 saveUserToken(user, accessToken);
-                var authResponse = AuthenticationResponse.builder()
+                var authResponse = AuthenticationResponseDto.builder()
                         .accessToken(accessToken)
                         .refreshToken(refreshToken)
                         .build();

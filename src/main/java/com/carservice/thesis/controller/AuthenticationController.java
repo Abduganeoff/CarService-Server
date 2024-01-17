@@ -1,8 +1,8 @@
 package com.carservice.thesis.controller;
 
-import com.carservice.thesis.dto.AuthenticationRequest;
-import com.carservice.thesis.dto.AuthenticationResponse;
-import com.carservice.thesis.dto.RegisterRequest;
+import com.carservice.thesis.dto.AuthenticationRequestDto;
+import com.carservice.thesis.dto.AuthenticationResponseDto;
+import com.carservice.thesis.dto.RegisterRequestDto;
 import com.carservice.thesis.service.AuthenticationService;
 import com.carservice.thesis.service.LogoutService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,14 +22,14 @@ public class AuthenticationController {
     private final LogoutService logoutService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(
-            @RequestBody RegisterRequest request
+    public ResponseEntity<AuthenticationResponseDto> register(
+            @RequestBody RegisterRequestDto request
     ) {
         return ResponseEntity.ok(service.register(request));
     }
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(
-            @RequestBody AuthenticationRequest request
+    public ResponseEntity<AuthenticationResponseDto> authenticate(
+            @RequestBody AuthenticationRequestDto request
     ) {
         return ResponseEntity.ok(service.authenticate(request));
     }

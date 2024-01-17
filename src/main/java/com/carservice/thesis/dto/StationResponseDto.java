@@ -1,5 +1,6 @@
 package com.carservice.thesis.dto;
 
+import com.carservice.thesis.entity.Employee;
 import com.carservice.thesis.entity.StationColorType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,11 +13,11 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class StationDTO {
+public class StationResponseDto {
+
     private Integer id;
     private Integer managerId;
     private String stationName;
     private StationColorType stationColorType;
-    private List<Integer> employeeIds;
-
+    private List<Employee> employees;
 }
