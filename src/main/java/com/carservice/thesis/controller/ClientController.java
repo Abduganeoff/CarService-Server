@@ -1,6 +1,7 @@
 package com.carservice.thesis.controller;
 
 import com.carservice.thesis.dto.ClientRequestDto;
+import com.carservice.thesis.dto.ClientResponseDto;
 import com.carservice.thesis.entity.Client;
 import com.carservice.thesis.service.ClientService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,17 +17,17 @@ public class ClientController {
     private ClientService clientService;
 
     @PostMapping
-    public ResponseEntity<Client> createClient(@RequestBody ClientRequestDto clientRequestDto) {
+    public ResponseEntity<ClientResponseDto> createClient(@RequestBody ClientRequestDto clientRequestDto) {
         return ResponseEntity.ok(clientService.createClientWithCars(clientRequestDto));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Client> getClient(@PathVariable Integer id) {
+    public ResponseEntity<ClientResponseDto> getClient(@PathVariable Integer id) {
         return ResponseEntity.ok(clientService.getClient(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<Client>> getAllClients() {
+    public ResponseEntity<List<ClientResponseDto>> getAllClients() {
         return ResponseEntity.ok(clientService.getAllClients());
     }
 

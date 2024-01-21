@@ -1,6 +1,7 @@
 package com.carservice.thesis.controller;
 
 
+import com.carservice.thesis.dto.CarResponseDto;
 import com.carservice.thesis.entity.Car;
 import com.carservice.thesis.service.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,26 +18,26 @@ public class CarController {
     private CarService carService;
 
     @PostMapping
-    public ResponseEntity<Car> createCar(@RequestBody Car car) {
-        Car newCar = carService.createCar(car);
+    public ResponseEntity<CarResponseDto> createCar(@RequestBody Car car) {
+        CarResponseDto newCar = carService.createCar(car);
         return ResponseEntity.ok(newCar);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Car> getCar(@PathVariable Integer id) {
-        Car car = carService.getCar(id);
+    public ResponseEntity<CarResponseDto> getCar(@PathVariable Integer id) {
+        CarResponseDto car = carService.getCar(id);
         return ResponseEntity.ok(car);
     }
 
     @GetMapping
-    public ResponseEntity<List<Car>> getAllCars() {
-        List<Car> cars = carService.getAllCars();
+    public ResponseEntity<List<CarResponseDto>> getAllCars() {
+        List<CarResponseDto> cars = carService.getAllCars();
         return ResponseEntity.ok(cars);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Car> updateCar(@PathVariable Integer id, @RequestBody Car carDetails) {
-        Car updatedCar = carService.updateCar(id, carDetails);
+    public ResponseEntity<CarResponseDto> updateCar(@PathVariable Integer id, @RequestBody Car carDetails) {
+        CarResponseDto updatedCar = carService.updateCar(id, carDetails);
         return ResponseEntity.ok(updatedCar);
     }
 
@@ -44,6 +45,12 @@ public class CarController {
     public ResponseEntity<?> deleteCar(@PathVariable Integer id) {
         carService.deleteCar(id);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/unassigned")
+    public ResponseEntity<List<CarResponseDto>> getUnassignedCars() {
+        List<CarResponseDto> unassignedCars = carService.getUnassignedCars();
+        return ResponseEntity.ok(unassignedCars);
     }
 
 }

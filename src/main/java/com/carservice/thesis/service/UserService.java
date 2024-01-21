@@ -6,7 +6,8 @@ import com.carservice.thesis.dto.UpdateUserRequestDto;
 import com.carservice.thesis.dto.UserResponseDto;
 import com.carservice.thesis.entity.Station;
 import com.carservice.thesis.entity.User;
-import com.carservice.thesis.exception.NotFoundOrAlreadyExistException;
+import com.carservice.thesis.exception.NotFoundException;
+import com.carservice.thesis.exception.WrongInputException;
 import com.carservice.thesis.repository.StationRepository;
 import com.carservice.thesis.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +37,11 @@ public class UserService {
 
         // check if the current password is correct
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
-            throw new IllegalStateException("Wrong password");
+            throw new WrongInputException("Wrong password");
         }
         // check if the two new passwords are the same
         if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
-            throw new IllegalStateException("Password are not the same");
+            throw new WrongInputException("Password are not the same");
         }
 
         // update the password
@@ -55,7 +56,7 @@ public class UserService {
         var dbUser = repository.findByEmail(request.getEmail());
 
         if (dbUser.isPresent()) {
-            throw new NotFoundOrAlreadyExistException("User already exists in the database!");
+            throw new NotFoundException("User already exists in the database!");
         }
 
         var user = User.builder()
@@ -78,7 +79,7 @@ public class UserService {
     @Transactional
     public void deleteUser(Integer userId) {
         User user = repository.findById(userId)
-                .orElseThrow(() -> new NotFoundOrAlreadyExistException("User not found with id: " + userId));
+                .orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
 
         if (user.getStation() != null) {
             Station station = user.getStation();
@@ -91,7 +92,7 @@ public class UserService {
 
     @Transactional
     public UserResponseDto updateUser(Integer userId, UpdateUserRequestDto updateRequest) {
-        User user = repository.findById(userId).orElseThrow(() -> new NotFoundOrAlreadyExistException("User not found with id: " + userId));
+        User user = repository.findById(userId).orElseThrow(() -> new NotFoundException("User not found with id: " + userId));
 
         // Update fields
         user.setFirstname(updateRequest.getFirstname());
@@ -140,7 +141,7 @@ public class UserService {
 
     public UserResponseDto findUserByEmail(String email) {
         return convertToDto(repository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundOrAlreadyExistException("User not found")));
+                .orElseThrow(() -> new NotFoundException("User not found")));
     }
 
 

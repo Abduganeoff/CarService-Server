@@ -7,7 +7,10 @@ import com.carservice.thesis.entity.Employee;
 import com.carservice.thesis.entity.Role;
 import com.carservice.thesis.entity.Station;
 import com.carservice.thesis.entity.User;
-import com.carservice.thesis.exception.NotFoundOrAlreadyExistException;
+import com.carservice.thesis.exception.AlreadyAssignedException;
+import com.carservice.thesis.exception.AlreadyExistsException;
+import com.carservice.thesis.exception.NotFoundException;
+import com.carservice.thesis.exception.NotPermittedException;
 import com.carservice.thesis.repository.EmployeeRepository;
 import com.carservice.thesis.repository.StationRepository;
 import com.carservice.thesis.repository.UserRepository;
@@ -41,15 +44,15 @@ public class StationService {
 
         if (stationRequestDTO.getManagerId() != null) {
             User manager = userRepository.findById(stationRequestDTO.getManagerId())
-                    .orElseThrow(() -> new NotFoundOrAlreadyExistException("Manager not found with id: " + stationRequestDTO.getManagerId()));
+                    .orElseThrow(() -> new NotFoundException("Manager not found with id: " + stationRequestDTO.getManagerId()));
 
             if (manager.getStation() != null) {
-                throw new IllegalStateException("Manager is already assigned to a station");
+                throw new AlreadyAssignedException("Manager is already assigned to a station");
             }
 
             // Check if the manager's role is "MANAGER"
             if (!manager.getRole().equals(Role.MANAGER)) {
-                throw new IllegalStateException("User does not have the required 'MANAGER' role");
+                throw new NotPermittedException("User does not have the required 'MANAGER' role");
             }
 
             station.setUser(manager);
@@ -58,10 +61,10 @@ public class StationService {
         if (stationRequestDTO.getEmployeeIds() != null && !stationRequestDTO.getEmployeeIds().isEmpty()) {
             for (Integer employeeId : stationRequestDTO.getEmployeeIds()) {
                 Employee employee = employeeRepository.findById(employeeId)
-                        .orElseThrow(() -> new NotFoundOrAlreadyExistException("Employee not found with id: " + employeeId));
+                        .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
 
                 if (employee.getStation() != null) {
-                    throw new IllegalStateException("One of the employees is already assigned to a station");
+                    throw new AlreadyAssignedException("One of the employees is already assigned to a station");
                 }
                 station.getEmployees().add(employee);
                 employee.setStation(station);
@@ -76,7 +79,7 @@ public class StationService {
     @Transactional
     public StationResponseDto updateStation(Integer stationId, StationRequestDto stationRequestDTO) {
         Station station = stationRepository.findById(stationId)
-                .orElseThrow(() -> new NotFoundOrAlreadyExistException("Station not found with id: " + stationId));
+                .orElseThrow(() -> new NotFoundException("Station not found with id: " + stationId));
 
         // Update station fields
         station.setStationName(stationRequestDTO.getStationName());
@@ -85,11 +88,11 @@ public class StationService {
         // Handle manager reassignment
         if (stationRequestDTO.getManagerId() != null) {
             User newManager = userRepository.findById(stationRequestDTO.getManagerId())
-                    .orElseThrow(() -> new NotFoundOrAlreadyExistException("User not found with id: " + stationRequestDTO.getManagerId()));
+                    .orElseThrow(() -> new NotFoundException("User not found with id: " + stationRequestDTO.getManagerId()));
 
             // Check manager role
             if (!newManager.getRole().equals(Role.MANAGER)) {
-                throw new IllegalStateException("User does not have the required 'MANAGER' role");
+                throw new NotPermittedException("User does not have the required 'MANAGER' role");
             }
 
             // Disassociate old manager
@@ -116,7 +119,7 @@ public class StationService {
         // Re-associate employees from the request
         for (Integer employeeId : stationRequestDTO.getEmployeeIds()) {
             Employee employee = employeeRepository.findById(employeeId)
-                    .orElseThrow(() -> new NotFoundOrAlreadyExistException("Employee not found with id: " + employeeId));
+                    .orElseThrow(() -> new NotFoundException("Employee not found with id: " + employeeId));
 
             station.getEmployees().add(employee);
             employee.setStation(station);
@@ -130,7 +133,7 @@ public class StationService {
     @Transactional
     public void deleteStation(Integer stationId) {
         Station station = stationRepository.findById(stationId)
-                .orElseThrow(() -> new NotFoundOrAlreadyExistException("Station not found with id: " + stationId));
+                .orElseThrow(() -> new NotFoundException("Station not found with id: " + stationId));
 
         // Disconnect the manager if assigned
         if (station.getUser() != null) {
@@ -152,7 +155,7 @@ public class StationService {
 
     public StationResponseDto getStation(Integer stationId) {
         Station station = stationRepository.findById(stationId)
-                .orElseThrow(() -> new NotFoundOrAlreadyExistException("Station not found with id: " + stationId));
+                .orElseThrow(() -> new NotFoundException("Station not found with id: " + stationId));
         return mapToStationDTO(station);
     }
 
@@ -167,15 +170,15 @@ public class StationService {
 
     public Optional<ManagedStationDto> getStationManagedByUserWithEmployees(Principal principal) {
         User manager = userRepository.findByEmail(principal.getName())
-                .orElseThrow(() -> new NotFoundOrAlreadyExistException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         if (manager.getRole() != Role.MANAGER) {
-            throw new IllegalStateException("User is not authorized as a manager");
+            throw new NotPermittedException("User is not authorized as a manager");
         }
 
         if (manager.getStation() != null) {
             Station station = stationRepository.findByIdWithEmployees(manager.getStation().getId())
-                    .orElseThrow(() -> new NotFoundOrAlreadyExistException("Station not found"));
+                    .orElseThrow(() -> new NotFoundException("Station not found"));
             ManagedStationDto managedStationDTO = new ManagedStationDto();
             managedStationDTO.setStation(station);
             managedStationDTO.setManagerId(manager.getId());

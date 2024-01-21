@@ -6,7 +6,8 @@ import com.carservice.thesis.dto.RegisterRequestDto;
 import com.carservice.thesis.entity.Token;
 import com.carservice.thesis.entity.TokenType;
 import com.carservice.thesis.entity.User;
-import com.carservice.thesis.exception.NotFoundOrAlreadyExistException;
+import com.carservice.thesis.exception.AlreadyExistsException;
+import com.carservice.thesis.exception.NotFoundException;
 import com.carservice.thesis.repository.TokenRepository;
 import com.carservice.thesis.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +36,7 @@ public class AuthenticationService {
     public AuthenticationResponseDto register(RegisterRequestDto request) {
         var dbUser = repository.findByEmail(request.getEmail());
         if(dbUser.isPresent()) {
-            throw new NotFoundOrAlreadyExistException("User already exists in the database!");
+            throw new AlreadyExistsException("User already exists in the database!");
         }
         var user = User.builder()
                 .firstname(request.getFirstname())
@@ -66,7 +66,7 @@ public class AuthenticationService {
                 )
         );
         var user = repository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new NotFoundOrAlreadyExistException("Email not found " + request.getEmail()));
+                .orElseThrow(() -> new NotFoundException("Email not found " + request.getEmail()));
         var jwtToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
