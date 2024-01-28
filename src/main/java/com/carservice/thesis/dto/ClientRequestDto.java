@@ -17,5 +17,5 @@ public class ClientRequestDto {
     private String lastname;
     private String email;
     private String phoneNumber;
-    private List<CarRequestDto> cars;
+    private List<Integer> carIds;
 }

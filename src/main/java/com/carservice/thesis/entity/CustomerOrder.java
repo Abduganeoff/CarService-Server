@@ -1,6 +1,7 @@
 package com.carservice.thesis.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -41,6 +42,7 @@ public class CustomerOrder {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "station_id")
+    @JsonIgnore
     private Station station;
 
 }

@@ -1,6 +1,7 @@
 package com.carservice.thesis.service;
 
 import com.carservice.thesis.dto.ManagedStationDto;
+import com.carservice.thesis.dto.StationManagerResponse;
 import com.carservice.thesis.dto.StationRequestDto;
 import com.carservice.thesis.dto.StationResponseDto;
 import com.carservice.thesis.entity.Employee;
@@ -191,10 +192,17 @@ public class StationService {
     private StationResponseDto mapToStationDTO(Station station) {
         StationResponseDto dto = new StationResponseDto();
         dto.setId(station.getId());
-        dto.setManagerId(station.getUser() != null ? station.getUser().getId() : null);
         dto.setStationName(station.getStationName());
         dto.setColorType(station.getColorType());
         dto.setEmployees(new ArrayList<>(station.getEmployees())); // Directly set the list of employees
+
+        // Set manager details
+        if (station.getUser() != null) {
+            StationManagerResponse manager = new StationManagerResponse();
+            manager.setManagerId(station.getUser().getId());
+            manager.setManagerName(station.getUser().getFirstname() + " " + station.getUser().getLastname());
+            dto.setManager(manager);
+        }
         return dto;
     }
 }

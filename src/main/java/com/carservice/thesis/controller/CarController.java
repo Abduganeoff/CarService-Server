@@ -1,7 +1,9 @@
 package com.carservice.thesis.controller;
 
 
+import com.carservice.thesis.dto.CarChartRequestDto;
 import com.carservice.thesis.dto.CarResponseDto;
+import com.carservice.thesis.dto.TimePeriodRequest;
 import com.carservice.thesis.entity.Car;
 import com.carservice.thesis.service.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/cars")
@@ -51,6 +54,12 @@ public class CarController {
     public ResponseEntity<List<CarResponseDto>> getUnassignedCars() {
         List<CarResponseDto> unassignedCars = carService.getUnassignedCars();
         return ResponseEntity.ok(unassignedCars);
+    }
+
+    @PostMapping("/chart")
+    public ResponseEntity<Map<String, Long>> getCarChartData(@RequestBody CarChartRequestDto request) {
+        Map<String, Long> chartData = carService.getCarChartData(request);
+        return ResponseEntity.ok(chartData);
     }
 
 }

@@ -1,5 +1,7 @@
 package com.carservice.thesis.service;
 
+import com.carservice.thesis.dto.CarAttributeType;
+import com.carservice.thesis.dto.CarChartRequestDto;
 import com.carservice.thesis.dto.CarResponseDto;
 import com.carservice.thesis.entity.Car;
 import com.carservice.thesis.exception.NotFoundException;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,6 +78,21 @@ public class CarService {
 
     private Car getCarEntity(Integer id) {
         return carRepository.findById(id).orElseThrow(() -> new NotFoundException("Car not found with id: " + id));
+    }
+
+    @Transactional
+    public Map<String, Long> getCarChartData(CarChartRequestDto requestDto) {
+        List<Car> cars = carRepository.findAll();
+
+        if (requestDto.getType() == CarAttributeType.MODEL) {
+            return cars.stream()
+                    .collect(Collectors.groupingBy(Car::getModel, Collectors.counting()));
+        } else if (requestDto.getType() == CarAttributeType.MAKE) {
+            return cars.stream()
+                    .collect(Collectors.groupingBy(Car::getMake, Collectors.counting()));
+        } else {
+            throw new IllegalArgumentException("Invalid attribute type");
+        }
     }
 
     private CarResponseDto convertToDto(Car car) {

@@ -1,14 +1,14 @@
 package com.carservice.thesis.controller;
 
 
-import com.carservice.thesis.dto.OrderRequestDto;
-import com.carservice.thesis.dto.OrderResponseDto;
+import com.carservice.thesis.dto.*;
 import com.carservice.thesis.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/orders")
@@ -46,4 +46,19 @@ public class OrderController {
         orderService.deleteOrder(id);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/clients/count")
+    public ResponseEntity<Map<String, Long>> getClientsCount(@RequestBody ClientCountRequestDto clientCountRequestDto) {
+        Map<String, Long> count = orderService.getClientsCount(clientCountRequestDto.getTimePeriod());
+        return ResponseEntity.ok(count);
+    }
+
+
+    @PostMapping("/cost")
+    public ResponseEntity<Double> calculateCost(@RequestBody TimePeriodRequest request) {
+        double cost = orderService.calculateCostForPeriod(request.getTimePeriod());
+        return ResponseEntity.ok(cost);
+    }
+
+
 }
