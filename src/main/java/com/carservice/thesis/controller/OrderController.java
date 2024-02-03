@@ -2,6 +2,7 @@ package com.carservice.thesis.controller;
 
 
 import com.carservice.thesis.dto.*;
+import com.carservice.thesis.entity.OrderState;
 import com.carservice.thesis.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -60,5 +61,24 @@ public class OrderController {
         return ResponseEntity.ok(cost);
     }
 
+
+    @GetMapping("/state/{state}")
+    public ResponseEntity<List<OrderResponseDto>> getOrdersByState(@PathVariable("state") String state) {
+        OrderState orderState = OrderState.valueOf(state.toUpperCase());
+        List<OrderResponseDto> orders = orderService.getOrdersByState(orderState);
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<OrderResponseDto>> searchOrdersByClientNameOrSurname(@RequestParam String name) {
+        List<OrderResponseDto> orders = orderService.searchOrdersByClientNameOrSurname(name);
+        return ResponseEntity.ok(orders);
+    }
+
+    @GetMapping("/stations/count")
+    public ResponseEntity<Map<String, Object>> getStationsCountAndGroup() {
+        Map<String, Object> result = orderService.getStationsCountAndPercentage();
+        return ResponseEntity.ok(result);
+    }
 
 }
